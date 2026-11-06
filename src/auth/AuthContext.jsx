@@ -19,6 +19,7 @@ export function AuthProvider({ children }) {
   // อ่านค่าเดิมจาก localStorage จะได้ไม่หลุด login ตอนรีเฟรช
   const [token, setToken] = useState(() => localStorage.getItem(TOKEN_KEY));
   const [member, setMember] = useState(readMember);
+  const [sessionExpired, setSessionExpired] = useState(false);
 
   const logout = useCallback(() => {
     setToken(null);
@@ -27,9 +28,12 @@ export function AuthProvider({ children }) {
     localStorage.removeItem(MEMBER_KEY);
   }, []);
 
-  // token หมดอายุระหว่างใช้งาน: ล้างสถานะ แล้ว ProtectedRoute จะพาไปหน้าเข้าสู่ระบบเอง
+  // token หมดอายุระหว่างใช้งาน: ล้างสถานะ แล้ว SessionWatcher จะพาไปหน้าเข้าสู่ระบบ
   useEffect(() => {
-    api.setUnauthorizedHandler(logout);
+    api.setUnauthorizedHandler(() => {
+      logout();
+      setSessionExpired(true);
+    });
     return () => api.setUnauthorizedHandler(null);
   }, [logout]);
 
@@ -60,6 +64,8 @@ export function AuthProvider({ children }) {
     register,
     logout,
     updateMember,
+    sessionExpired,
+    clearSessionExpired: () => setSessionExpired(false),
   };
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }

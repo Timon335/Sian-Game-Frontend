@@ -4,6 +4,7 @@ import Footer from './components/Footer';
 import Navbar from './components/Navbar';
 import ProtectedRoute from './components/ProtectedRoute';
 import RequireRole from './components/RequireRole';
+import SessionWatcher from './components/SessionWatcher';
 import Cart from './pages/Cart';
 import Checkout from './pages/Checkout';
 import GameDetail from './pages/GameDetail';
@@ -31,6 +32,7 @@ function App() {
     // AuthProvider ครอบทั้งแอป ทุกหน้าข้างในจึงเรียก useAuth() ได้
     <AuthProvider>
       <div className="flex min-h-screen flex-col">
+        <SessionWatcher />
         <Navbar />
         <main className="flex-1">
           <Routes>

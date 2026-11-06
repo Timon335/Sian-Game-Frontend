@@ -34,6 +34,7 @@ function Login() {
     <div className="mx-auto max-w-md px-4 py-10">
       <form onSubmit={handleSubmit} className="rounded bg-sian-panel p-6">
         <h1 className="text-2xl font-bold text-white">เข้าสู่ระบบ</h1>
+        {location.state?.expired && <p role="status" className="mt-2 text-sm text-sian-star">การเข้าสู่ระบบหมดอายุ กรุณาเข้าสู่ระบบใหม่</p>}
         <label className="mt-4 block text-sm text-sian-muted" htmlFor="email">อีเมล</label>
         <input id="email" type="email" required autoComplete="username" value={email} onChange={(e) => setEmail(e.target.value)} className={inputClass + ' mt-1'} />
         <label className="mt-3 block text-sm text-sian-muted" htmlFor="password">รหัสผ่าน</label>
