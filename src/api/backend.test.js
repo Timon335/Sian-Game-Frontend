@@ -53,6 +53,23 @@ test('เน็ตหลุดได้ข้อความแจ้งให�
   await expect(apiFetch('/api/x')).rejects.toMatchObject({ status: 0, message: expect.stringContaining('เชื่อมต่อ') });
 });
 
+test('server ไม่ตอบจนหมดเวลาต้องยกเลิกและแจ้งให้ลองใหม่', async () => {
+  jest.useFakeTimers();
+  fetch.mockImplementation((_, init) => new Promise((_resolve, reject) => {
+    init.signal.addEventListener('abort', () => reject(new DOMException('Aborted', 'AbortError')));
+  }));
+  const pending = apiFetch('/api/games');
+  const check = expect(pending).rejects.toMatchObject({ status: 0, code: 'TIMEOUT', message: expect.stringContaining('นานเกินไป') });
+  await jest.advanceTimersByTimeAsync(90000);
+  await check;
+  jest.useRealTimers();
+});
+
+test('ตอบ 200 แต่ไม่ใช่ JSON ต้องเป็น error ไม่ใช่ null', async () => {
+  fetch.mockReturnValue(mockResponse(200));
+  await expect(apiFetch('/api/games')).rejects.toMatchObject({ code: 'BAD_RESPONSE' });
+});
+
 test('401 บนคำขอที่มี token เรียกตัวจัดการให้ออกจากระบบ', async () => {
   const onUnauthorized = jest.fn();
   setUnauthorizedHandler(onUnauthorized);

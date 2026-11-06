@@ -1,5 +1,6 @@
 // ชั้นกลางคุยกับ Go ทุกหน้าเรียกผ่านไฟล์นี้ ไม่เรียก fetch เอง
 const BASE = process.env.REACT_APP_API_URL || '';
+const TIMEOUT_MS = 90000;
 
 let onUnauthorized = null;
 
@@ -20,19 +21,31 @@ export async function apiFetch(path, { method = 'GET', body, token } = {}) {
   if (body !== undefined) headers['Content-Type'] = 'application/json';
   if (token) headers.Authorization = `Bearer ${token}`;
 
+  // Render แบบฟรีตื่นช้า จึงรอได้นาน แต่ต้องไม่ค้างตลอดไป
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), TIMEOUT_MS);
   let res;
   try {
     res = await fetch(BASE + path, {
       method,
       headers,
       body: body === undefined ? undefined : JSON.stringify(body),
+      signal: controller.signal,
     });
-  } catch {
+  } catch (err) {
+    if (err.name === 'AbortError') {
+      throw apiError(0, 'TIMEOUT', 'server ใช้เวลานานเกินไป กรุณาลองใหม่อีกครั้ง');
+    }
     throw apiError(0, 'NETWORK', 'เชื่อมต่อ server ไม่ได้ กรุณาลองใหม่อีกครั้ง');
+  } finally {
+    clearTimeout(timer);
   }
 
   if (res.status === 204) return null;
   const data = await res.json().catch(() => null);
+  if (res.ok && data === null) {
+    throw apiError(res.status, 'BAD_RESPONSE', 'server ตอบข้อมูลที่อ่านไม่ได้ กรุณาลองใหม่อีกครั้ง');
+  }
   if (!res.ok) {
     if (res.status === 401 && token && onUnauthorized) onUnauthorized();
     throw apiError(
