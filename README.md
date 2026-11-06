@@ -2,6 +2,11 @@
 
 หน้าเว็บของร้านเกม Sian Game เขียนด้วย React (Create React App), React Router, Fetch API และ Tailwind CSS deploy บน Vercel และเรียก API จาก [Sian-Game-Backend](https://github.com/Timon335/Sian-Game-Backend)
 
+- เว็บ: https://sian-game-frontend.vercel.app
+- API: https://sian-game-api.onrender.com
+
+Render แบบฟรีจะหลับเมื่อไม่มีคนใช้ คำขอแรกอาจรอประมาณ 1 นาที
+
 ## โครงสร้าง
 
 | โฟลเดอร์ | หน้าที่ |
