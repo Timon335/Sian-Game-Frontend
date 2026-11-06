@@ -55,14 +55,16 @@ test('เน็ตหลุดได้ข้อความแจ้งให�
 
 test('server ไม่ตอบจนหมดเวลาต้องยกเลิกและแจ้งให้ลองใหม่', async () => {
   jest.useFakeTimers();
-  fetch.mockImplementation((_, init) => new Promise((_resolve, reject) => {
-    init.signal.addEventListener('abort', () => reject(new DOMException('Aborted', 'AbortError')));
-  }));
-  const pending = apiFetch('/api/games');
-  const check = expect(pending).rejects.toMatchObject({ status: 0, code: 'TIMEOUT', message: expect.stringContaining('นานเกินไป') });
-  await jest.advanceTimersByTimeAsync(90000);
-  await check;
-  jest.useRealTimers();
+  try {
+    fetch.mockImplementation((_, init) => new Promise((_resolve, reject) => {
+      init.signal.addEventListener('abort', () => reject(new DOMException('Aborted', 'AbortError')));
+    }));
+    const pending = apiFetch('/api/games');
+    jest.advanceTimersByTime(90000);
+    await expect(pending).rejects.toMatchObject({ status: 0, code: 'TIMEOUT', message: expect.stringContaining('นานเกินไป') });
+  } finally {
+    jest.useRealTimers();
+  }
 });
 
 test('ตอบ 200 แต่ไม่ใช่ JSON ต้องเป็น error ไม่ใช่ null', async () => {
