@@ -1,0 +1,12 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  @apply bg-sian-bg font-sans text-sian-text antialiased;
+}
+
+/* ตัวหลักของหน้าร้านใช้พื้นไล่สีเข้มด้านบน */
+.sian-page {
+  background: linear-gradient(180deg, #16263a 0%, #101822 420px);
+}
