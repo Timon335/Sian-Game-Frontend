@@ -1,11 +1,13 @@
 import { Link, NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../auth/AuthContext';
+import { useCart } from '../cart/CartContext';
 
 const linkClass = ({ isActive }) =>
   'text-sm font-medium uppercase tracking-wide transition ' + (isActive ? 'text-white' : 'text-sian-muted hover:text-white');
 
 function Navbar() {
   const { isLoggedIn, isAdmin, member, logout } = useAuth();
+  const { count } = useCart();
   const navigate = useNavigate();
 
   function handleLogout() {
@@ -30,7 +32,10 @@ function Navbar() {
         <div className="ml-auto flex items-center gap-3 text-sm">
           {isLoggedIn ? (
             <>
-              <Link to="/me/cart" className="rounded bg-sian-buy px-3 py-1.5 font-semibold text-white hover:bg-sian-buyhover">ตะกร้า</Link>
+              <Link to="/me/cart" className="rounded bg-sian-buy px-3 py-1.5 font-semibold text-white hover:bg-sian-buyhover">
+                ตะกร้า
+                {count > 0 && <span data-testid="cart-count" className="ml-1.5 rounded bg-white/25 px-1.5">{count}</span>}
+              </Link>
               <Link to="/me/profile" className="text-sian-text hover:text-white">{member?.displayName}</Link>
               <button onClick={handleLogout} className="text-sian-muted hover:text-white">ออกจากระบบ</button>
             </>

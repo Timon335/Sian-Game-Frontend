@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '../auth/AuthContext';
+import { useCart } from '../cart/CartContext';
 import { ErrorBox, Loading, btnGhost, btnPrimary } from '../components/admin/AdminStates';
 import { Stars } from '../components/GameCard';
 import ReviewSection from '../components/ReviewSection';
@@ -11,6 +12,7 @@ function GameDetail() {
   const { id } = useParams();
   const gameId = Number(id);
   const { token, isLoggedIn } = useAuth();
+  const { refreshCart } = useCart();
   const navigate = useNavigate();
 
   const [game, setGame] = useState(null);
@@ -62,6 +64,7 @@ function GameDetail() {
     setActionError(null);
     try {
       await addToCart(gameId, token);
+      refreshCart();
       navigate('/me/cart');
     } catch (err) {
       setActionError(err.message);

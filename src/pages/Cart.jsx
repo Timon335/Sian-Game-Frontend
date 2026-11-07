@@ -1,12 +1,14 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../auth/AuthContext';
+import { useCart } from '../cart/CartContext';
 import { Empty, ErrorBox, Loading, btnGhost, btnPrimary } from '../components/admin/AdminStates';
 import { getCart, removeFromCart } from '../api/backend';
 import { baht } from '../utils/format';
 
 function Cart() {
   const { token } = useAuth();
+  const { refreshCart } = useCart();
   const [items, setItems] = useState([]);
   const [status, setStatus] = useState('loading');
   const [error, setError] = useState(null);
@@ -33,6 +35,7 @@ function Cart() {
     try {
       await removeFromCart(id, token);
       setItems((list) => list.filter((g) => g.id !== id));
+      refreshCart();
     } catch (err) {
       setActionError(err.message);
     }

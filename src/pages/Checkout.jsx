@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../auth/AuthContext';
+import { useCart } from '../cart/CartContext';
 import { Empty, ErrorBox, Loading, btnPrimary, inputClass } from '../components/admin/AdminStates';
 import { getCart, placeOrder } from '../api/backend';
 import { baht } from '../utils/format';
@@ -19,6 +20,7 @@ function cardProblem(card) {
 
 function Checkout() {
   const { token } = useAuth();
+  const { refreshCart } = useCart();
   const navigate = useNavigate();
   const [items, setItems] = useState([]);
   const [status, setStatus] = useState('loading');
@@ -68,6 +70,7 @@ function Checkout() {
     setPayError(null);
     try {
       await placeOrder(token); // ส่งแค่ token ราคาและรายการเกมให้ Go อ่านจากฐานข้อมูล
+      refreshCart();
       navigate('/me/library', { replace: true });
     } catch (err) {
       setPayError(err.message);
