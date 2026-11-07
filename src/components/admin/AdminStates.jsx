@@ -1,3 +1,5 @@
+import { useEffect, useState } from 'react';
+
 // ชิ้นส่วนเล็ก ๆ ที่หลายหน้าใช้ซ้ำ: สถานะการโหลด ปุ่ม ช่องกรอก และกล่องยืนยัน
 export function ErrorBox({ error, onRetry }) {
   return (
@@ -11,8 +13,23 @@ export function ErrorBox({ error, onRetry }) {
   );
 }
 
+const SLOW_MS = 5000;
+
+// Render แบบฟรีหลับเมื่อไม่มีคนใช้ ถ้ารอนานให้บอกผู้ใช้ จะได้ไม่คิดว่าเว็บเสีย
 export function Loading({ text = 'กำลังโหลด...' }) {
-  return <p role="status" className="py-16 text-center text-sian-muted">{text}</p>;
+  const [slow, setSlow] = useState(false);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setSlow(true), SLOW_MS);
+    return () => clearTimeout(timer);
+  }, []);
+
+  return (
+    <div role="status" className="py-16 text-center text-sian-muted">
+      <p>{text}</p>
+      {slow && <p className="mt-2 text-sm">กำลังเปิดระบบ อาจใช้เวลาประมาณ 1 นาที</p>}
+    </div>
+  );
 }
 
 export function Empty({ text, children }) {
