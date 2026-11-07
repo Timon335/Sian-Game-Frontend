@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../auth/AuthContext';
 import { btnPrimary, inputClass } from '../components/admin/AdminStates';
@@ -15,6 +15,7 @@ function Login() {
   const [password, setPassword] = useState('');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState(null);
+  const demoFilled = useRef(false);
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -29,9 +30,10 @@ function Login() {
     }
   }
 
-  // เติมเฉพาะตอนว่างทั้งสองช่อง ถ้าผู้ใช้เริ่มแก้เองแล้วจะไม่เติมทับ
+  // เติมแค่ครั้งเดียวต่อการเปิดหน้า ถ้าผู้ใช้ลบเพื่อพิมพ์บัญชีตัวเองจะไม่เติมซ้ำ
   function fillDemo() {
-    if (email === '' && password === '') {
+    if (!demoFilled.current && email === '' && password === '') {
+      demoFilled.current = true;
       setEmail(DEMO_EMAIL);
       setPassword(DEMO_PASSWORD);
     }

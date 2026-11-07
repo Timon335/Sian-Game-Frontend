@@ -88,6 +88,21 @@ test('พิมพ์บัญชีตัวเองได้ ค่าที�
   expect(password).toHaveValue('');
 });
 
+test('ลบทั้งสองช่องแล้วคลิกใหม่ต้องไม่เติมซ้ำ จึงพิมพ์บัญชีตัวเองได้', async () => {
+  const user = userEvent.setup();
+  renderAt('/login');
+  const email = screen.getByLabelText('อีเมล');
+  const password = screen.getByLabelText('รหัสผ่าน');
+  await user.click(email);
+  await user.clear(email);
+  await user.clear(password);
+  await user.click(email);
+  await user.type(email, 'me@x.test');
+  await user.type(password, 'mypassword');
+  expect(email).toHaveValue('me@x.test');
+  expect(password).toHaveValue('mypassword');
+});
+
 test('กดปุ่มเข้าสู่ระบบตอนช่องว่างต้องไม่เติมบัญชีทดลอง', async () => {
   const user = userEvent.setup();
   renderAt('/login');
