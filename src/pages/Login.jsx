@@ -1,7 +1,11 @@
 import { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../auth/AuthContext';
-import { btnGhost, btnPrimary, inputClass } from '../components/admin/AdminStates';
+import { btnPrimary, inputClass } from '../components/admin/AdminStates';
+
+// บัญชีสมาชิกทดลองจาก seed เติมให้เมื่อคลิกช่องกรอก เพื่อให้ทดสอบได้เร็ว
+const DEMO_EMAIL = 'demo@siangame.test';
+const DEMO_PASSWORD = 'demo1234';
 
 function Login() {
   const { login } = useAuth();
@@ -25,9 +29,12 @@ function Login() {
     }
   }
 
+  // เติมเฉพาะตอนว่างทั้งสองช่อง ถ้าผู้ใช้เริ่มแก้เองแล้วจะไม่เติมทับ
   function fillDemo() {
-    setEmail('demo@siangame.test');
-    setPassword('demo1234');
+    if (email === '' && password === '') {
+      setEmail(DEMO_EMAIL);
+      setPassword(DEMO_PASSWORD);
+    }
   }
 
   return (
@@ -36,12 +43,11 @@ function Login() {
         <h1 className="text-2xl font-bold text-white">เข้าสู่ระบบ</h1>
         {location.state?.expired && <p role="status" className="mt-2 text-sm text-sian-star">การเข้าสู่ระบบหมดอายุ กรุณาเข้าสู่ระบบใหม่</p>}
         <label className="mt-4 block text-sm text-sian-muted" htmlFor="email">อีเมล</label>
-        <input id="email" type="email" required autoComplete="username" value={email} onChange={(e) => setEmail(e.target.value)} className={inputClass + ' mt-1'} />
+        <input id="email" type="email" required autoComplete="username" value={email} onFocus={fillDemo} onChange={(e) => setEmail(e.target.value)} className={inputClass + ' mt-1'} />
         <label className="mt-3 block text-sm text-sian-muted" htmlFor="password">รหัสผ่าน</label>
-        <input id="password" type="password" required autoComplete="current-password" value={password} onChange={(e) => setPassword(e.target.value)} className={inputClass + ' mt-1'} />
+        <input id="password" type="password" required autoComplete="current-password" value={password} onFocus={fillDemo} onChange={(e) => setPassword(e.target.value)} className={inputClass + ' mt-1'} />
         {error && <p role="alert" className="mt-3 text-sm text-red-300">{error}</p>}
         <button type="submit" disabled={busy} className={btnPrimary + ' mt-4 w-full'}>{busy ? 'กำลังเข้าสู่ระบบ...' : 'เข้าสู่ระบบ'}</button>
-        <button type="button" onClick={fillDemo} className={btnGhost + ' mt-2 w-full'}>กรอกบัญชีทดลอง</button>
         <p className="mt-4 text-center text-sm text-sian-muted">
           ยังไม่มีบัญชี? <Link to="/register" state={location.state} className="text-sian-accent hover:underline">สมัครสมาชิก</Link>
         </p>

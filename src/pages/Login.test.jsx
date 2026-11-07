@@ -50,14 +50,49 @@ test('สำเร็จแล้วกลับหน้าเดิมที�
   expect(localStorage.getItem('siangame.token')).toBe('t');
 });
 
-test('ปุ่มบัญชีทดลองกรอกเฉพาะบัญชีสมาชิก ไม่มีข้อมูล Admin', async () => {
+test('ไม่มีปุ่มกรอกบัญชีทดลองแล้ว', () => {
+  renderAt('/login');
+  expect(screen.queryByRole('button', { name: 'กรอกบัญชีทดลอง' })).not.toBeInTheDocument();
+});
+
+test('คลิกช่องอีเมลแล้วเติมบัญชีสมาชิกทดลองทั้งสองช่อง โดยยังไม่เข้าสู่ระบบ', async () => {
   const user = userEvent.setup();
   renderAt('/login');
-  await user.click(screen.getByRole('button', { name: 'กรอกบัญชีทดลอง' }));
+  expect(screen.getByLabelText('อีเมล')).toHaveValue('');
+  await user.click(screen.getByLabelText('อีเมล'));
   expect(screen.getByLabelText('อีเมล')).toHaveValue('demo@siangame.test');
   expect(screen.getByLabelText('รหัสผ่าน')).toHaveValue('demo1234');
-  expect(document.body.textContent).not.toMatch(/admin@/i);
   expect(login).not.toHaveBeenCalled();
+});
+
+test('คลิกช่องรหัสผ่านก็เติมให้เหมือนกัน และไม่ใช่บัญชี Admin', async () => {
+  const user = userEvent.setup();
+  renderAt('/login');
+  await user.click(screen.getByLabelText('รหัสผ่าน'));
+  expect(screen.getByLabelText('อีเมล')).toHaveValue('demo@siangame.test');
+  expect(screen.getByLabelText('อีเมล')).not.toHaveValue('admin@siangame.test');
+});
+
+test('พิมพ์บัญชีตัวเองได้ ค่าที่แก้ไว้ไม่ถูกเติมทับตอนคลิกอีกช่อง', async () => {
+  const user = userEvent.setup();
+  renderAt('/login');
+  const email = screen.getByLabelText('อีเมล');
+  const password = screen.getByLabelText('รหัสผ่าน');
+  await user.click(email);
+  await user.clear(email);
+  await user.type(email, 'me@x.test');
+  await user.click(password);
+  await user.clear(password);
+  await user.click(email);
+  expect(email).toHaveValue('me@x.test');
+  expect(password).toHaveValue('');
+});
+
+test('กดปุ่มเข้าสู่ระบบตอนช่องว่างต้องไม่เติมบัญชีทดลอง', async () => {
+  const user = userEvent.setup();
+  renderAt('/login');
+  await user.click(screen.getByRole('button', { name: 'เข้าสู่ระบบ' }));
+  expect(screen.getByLabelText('อีเมล')).toHaveValue('');
 });
 
 test('สมัครสมาชิกแล้วเข้าสู่ระบบให้ทันที', async () => {
